@@ -973,7 +973,11 @@ def get_collection_item(api: API, request: APIRequest,
                                      content, request.locale)
         return headers, HTTPStatus.OK, content
 
-    elif request.format == F_JSONLD:
+    elif request.format == F_JSONLD or (
+            request.format == F_JSON
+            and (linked_data := api.config['resources'][dataset].get('linked-data'))
+            and all(linked_data.get(k) for k in ('context', 'inject_verbatim_context'))
+      ):
         content = geojson2jsonld(
             api, content, dataset, uri, (p.uri_field or 'id')
         )
