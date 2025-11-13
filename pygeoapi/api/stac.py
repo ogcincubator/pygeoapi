@@ -48,7 +48,7 @@ from shapely import from_geojson
 
 from pygeoapi import l10n
 from pygeoapi import api as ogc_api
-from pygeoapi.api import itemtypes as itemtypes_api
+from pygeoapi.api import itemtypes as itemtypes_api, F_JSONLD
 from pygeoapi.plugin import load_plugin
 
 from pygeoapi.provider.base import (
@@ -56,7 +56,7 @@ from pygeoapi.provider.base import (
 )
 from pygeoapi.util import (
     filter_dict_by_key_value, get_current_datetime, get_provider_by_type,
-    render_j2_template, to_json
+    render_j2_template, to_json, get_base_url
 )
 
 from . import APIRequest, API, FORMAT_TYPES, F_JSON, F_HTML
@@ -226,6 +226,16 @@ def get_stac_path(api: API, request: APIRequest,
                         'stac/catalog.html', content, request.locale)
 
             return headers, HTTPStatus.OK, content
+
+        elif ((linked_data := api.config['resources'][dataset].get('linked-data'))
+                and all(linked_data.get(k) for k in ('context', 'inject_verbatim_context'))):
+            content = {
+                '@context': linked_data['context'],
+                **content
+            }
+            if replace_id_field := linked_data.get('replace_id_field'):
+                content[replace_id_field] = f"{get_base_url(api.config)}/stac/{path}"
+                pass
 
         return headers, HTTPStatus.OK, to_json(content, api.pretty_print)
 
