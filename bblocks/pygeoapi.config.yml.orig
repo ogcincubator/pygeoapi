@@ -1,0 +1,44 @@
+server:
+  bind:
+    host: 0.0.00
+    port: 5000
+  url: https://defs-dev.opengis.net/bblocks-pygeoapi/
+  admin: false
+  cors: true
+  encoding: utf-8
+  language: en-US
+  limits:
+    default_items: 50
+    max_distance_units: m
+    max_distance_x: 25
+    max_distance_y: 25
+    max_items: 1000
+    on_exceed: throttle
+  map:
+    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap
+      contributors</a>'
+    url: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+  mimetype: application/json; charset=UTF-8
+  pretty_print: true
+metadata:
+  identification:
+    title: Building Blocks examples pygeoapi
+    description: Lorem ipsum
+    keywords:
+    - ogc
+    - building-blocks
+    - examples
+    keywords_type: theme
+    terms_of_service: https://www.ogc.org/about-ogc/legal-notices-term-and-conditions/
+    url: https://www.ogc.org
+  license:
+    name: Apache License, Version 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.txt
+  provider:
+    name: Open Geospatial Consortium
+    url: https://www.ogc.org
+  contact:
+    name: Alejandro Villar
+    email: avillar@ogc.org
+logging:
+  level: ERROR

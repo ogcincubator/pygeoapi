@@ -1,0 +1,471 @@
+server:
+  bind:
+    host: 0.0.00
+    port: 5000
+  url: https://defs-dev.opengis.net/bblocks-pygeoapi/
+  admin: false
+  cors: true
+  encoding: utf-8
+  language: en-US
+  limits:
+    default_items: 50
+    max_distance_units: m
+    max_distance_x: 25
+    max_distance_y: 25
+    max_items: 1000
+    on_exceed: throttle
+  map:
+    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap
+      contributors</a>'
+    url: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+  mimetype: application/json; charset=UTF-8
+  pretty_print: true
+metadata:
+  identification:
+    title: Building Blocks examples pygeoapi
+    description: Lorem ipsum
+    keywords:
+    - ogc
+    - building-blocks
+    - examples
+    keywords_type: theme
+    terms_of_service: https://www.ogc.org/about-ogc/legal-notices-term-and-conditions/
+    url: https://www.ogc.org
+  license:
+    name: Apache License, Version 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.txt
+  provider:
+    name: Open Geospatial Consortium
+    url: https://www.ogc.org
+  contact:
+    name: Alejandro Villar
+    email: avillar@ogc.org
+logging:
+  level: ERROR
+resources:
+  ogc.bbr.examples.feature.externalSchema:
+    type: collection
+    visibility: default
+    title: External Schema (Smart Data Models)
+    description: This example shows a simple customisation for OGC API Feature using
+      an externally defined domain schema.
+    keywords:
+    - feature
+    - examples
+    extents:
+      spatial:
+        bbox:
+        - 59.354444
+        - 17.939722
+        - 59.354444
+        - 17.939722
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-examples/build/annotated/bbr/examples/feature/externalSchema/context.jsonld
+    providers:
+    - type: feature
+      name: GeoJSON
+      data: /data/bblocks/ogc.bbr.examples.feature.geojson
+    bblocks_register: https://ogcincubator.github.io/bblocks-examples/build/register.json
+  ogc.bbr.examples.feature.geojsonFeature:
+    type: collection
+    visibility: default
+    title: Custom GeoJSON Feature
+    description: This example shows a simple customisation method for OGC API Feature
+      schemas
+    keywords:
+    - feature
+    - examples
+    extents:
+      spatial:
+        bbox:
+        - -111.71
+        - 40.056709946862874
+        - -111.67183507997295
+        - 40.156709946862875
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-examples/build/annotated/bbr/examples/feature/geojsonFeature/context.jsonld
+    providers:
+    - type: feature
+      name: GeoJSON
+      data: /data/bblocks/ogc.bbr.examples.feature.geojson
+    bblocks_register: https://ogcincubator.github.io/bblocks-examples/build/register.json
+  ogc.bbr.examples.feature.geosparqlFeature:
+    type: collection
+    visibility: default
+    title: GeoJSON transformed to GeoSPARQL geometry
+    description: This example includes an uplift step to use a GeoSPARQL geometry
+      in a GeoJSON object
+    keywords:
+    - feature
+    - examples
+    extents:
+      spatial:
+        bbox:
+        - -111.71
+        - 40.056709946862874
+        - -111.67183507997295
+        - 40.156709946862875
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-examples/build/annotated/bbr/examples/feature/geosparqlFeature/context.jsonld
+    providers:
+    - type: feature
+      name: GeoJSON
+      data: /data/bblocks/ogc.bbr.examples.feature.geojson
+    bblocks_register: https://ogcincubator.github.io/bblocks-examples/build/register.json
+  ogc.bbr.examples.feature.geojsonFeatureFGLenient:
+    type: collection
+    visibility: default
+    title: Custom JSON-FG (lenient) Feature
+    description: This example shows a simple customisation method for a JSON-FG (lenient)
+      feature
+    keywords:
+    - feature
+    - examples
+    extents:
+      spatial:
+        bbox:
+        - -111.71
+        - 40.056709946862874
+        - -111.67183507997295
+        - 40.156709946862875
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-examples/build/annotated/bbr/examples/feature/geojsonFeatureFGLenient/context.jsonld
+    providers:
+    - type: feature
+      name: GeoJSON
+      data: /data/bblocks/ogc.bbr.examples.feature.geojson
+    bblocks_register: https://ogcincubator.github.io/bblocks-examples/build/register.json
+  ogc.bbr.examples.feature.overrideContext:
+    type: collection
+    visibility: default
+    title: Test Context Override
+    description: This example shows a simple customisation for OGC API Feature using
+      an externally defined domain schema.
+    keywords:
+    - feature
+    - examples
+    extents:
+      spatial:
+        bbox:
+        - 59.354444
+        - 17.939722
+        - 59.354444
+        - 17.939722
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-examples/build/annotated/bbr/examples/feature/overrideContext/context.jsonld
+    providers:
+    - type: feature
+      name: GeoJSON
+      data: /data/bblocks/ogc.bbr.examples.feature.geojson
+    bblocks_register: https://ogcincubator.github.io/bblocks-examples/build/register.json
+  ogc.bbr.examples.observation.vectorObservationFeature:
+    type: collection
+    visibility: default
+    title: Custom Result for Observation Feature
+    description: This building block defines an example specialisation of an existing
+      Feature specialisation (SOSA Observation), using another schema to define a
+      result set - in this case the GeoPose model
+    keywords:
+    - sosa
+    - observations
+    - o&m
+    - o&m&s
+    - examples
+    extents:
+      spatial:
+        bbox:
+        - -111.71
+        - 40.056709946862874
+        - -111.67183507997295
+        - 40.156709946862875
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-examples/build/annotated/bbr/examples/observation/vectorObservationFeature/context.jsonld
+    providers:
+    - type: feature
+      name: GeoJSON
+      data: /data/bblocks/ogc.bbr.examples.observation.geojson
+    bblocks_register: https://ogcincubator.github.io/bblocks-examples/build/register.json
+  ogc.contrib.stac.item:
+    type: stac-collection
+    title: STAC Item catalog
+    description: STAC Catalog for examples in STAC Item building block.
+    providers:
+    - type: stac
+      name: Hateoas
+      data: /data/stac/ogc.contrib.stac.item
+      file_types:
+      - catalog.json
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-stac/build/annotated/contrib/stac/item/context.jsonld
+    bblocks_register: https://ogcincubator.github.io/bblocks-stac/build/register.json
+  ogc.contrib.stac.extensions.accuracy:
+    type: stac-collection
+    title: STAC Accuracy Extension catalog
+    description: STAC Catalog for examples in STAC Accuracy Extension building block.
+    providers:
+    - type: stac
+      name: Hateoas
+      data: /data/stac/ogc.contrib.stac.extensions.accuracy
+      file_types:
+      - catalog.json
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-stac/build/annotated/contrib/stac/extensions/accuracy/context.jsonld
+    bblocks_register: https://ogcincubator.github.io/bblocks-stac/build/register.json
+  ogc.contrib.stac.extensions.cf:
+    type: stac-collection
+    title: STAC CF Extension catalog
+    description: STAC Catalog for examples in STAC CF Extension building block.
+    providers:
+    - type: stac
+      name: Hateoas
+      data: /data/stac/ogc.contrib.stac.extensions.cf
+      file_types:
+      - catalog.json
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-stac/build/annotated/contrib/stac/extensions/cf/context.jsonld
+    bblocks_register: https://ogcincubator.github.io/bblocks-stac/build/register.json
+  ogc.contrib.stac.extensions.classification:
+    type: stac-collection
+    title: STAC Classification Extension catalog
+    description: STAC Catalog for examples in STAC Classification Extension building
+      block.
+    providers:
+    - type: stac
+      name: Hateoas
+      data: /data/stac/ogc.contrib.stac.extensions.classification
+      file_types:
+      - catalog.json
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-stac/build/annotated/contrib/stac/extensions/classification/context.jsonld
+    bblocks_register: https://ogcincubator.github.io/bblocks-stac/build/register.json
+  ogc.contrib.stac.extensions.eo:
+    type: stac-collection
+    title: STAC Electro-Optical Extension catalog
+    description: STAC Catalog for examples in STAC Electro-Optical Extension building
+      block.
+    providers:
+    - type: stac
+      name: Hateoas
+      data: /data/stac/ogc.contrib.stac.extensions.eo
+      file_types:
+      - catalog.json
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-stac/build/annotated/contrib/stac/extensions/eo/context.jsonld
+    bblocks_register: https://ogcincubator.github.io/bblocks-stac/build/register.json
+  ogc.contrib.stac.extensions.osc:
+    type: stac-collection
+    title: STAC Extension - ESA Open Science Catalog catalog
+    description: STAC Catalog for examples in STAC Extension - ESA Open Science Catalog
+      building block.
+    providers:
+    - type: stac
+      name: Hateoas
+      data: /data/stac/ogc.contrib.stac.extensions.osc
+      file_types:
+      - catalog.json
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-stac/build/annotated/contrib/stac/extensions/osc/context.jsonld
+    bblocks_register: https://ogcincubator.github.io/bblocks-stac/build/register.json
+  ogc.contrib.stac.extensions.processing:
+    type: stac-collection
+    title: STAC Processing Extension catalog
+    description: STAC Catalog for examples in STAC Processing Extension building block.
+    providers:
+    - type: stac
+      name: Hateoas
+      data: /data/stac/ogc.contrib.stac.extensions.processing
+      file_types:
+      - catalog.json
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-stac/build/annotated/contrib/stac/extensions/processing/context.jsonld
+    bblocks_register: https://ogcincubator.github.io/bblocks-stac/build/register.json
+  ogc.contrib.stac.extensions.raster:
+    type: stac-collection
+    title: STAC Raster Extension catalog
+    description: STAC Catalog for examples in STAC Raster Extension building block.
+    providers:
+    - type: stac
+      name: Hateoas
+      data: /data/stac/ogc.contrib.stac.extensions.raster
+      file_types:
+      - catalog.json
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-stac/build/annotated/contrib/stac/extensions/raster/context.jsonld
+    bblocks_register: https://ogcincubator.github.io/bblocks-stac/build/register.json
+  ogc.contrib.stac.extensions.themes:
+    type: stac-collection
+    title: STAC Themes Extension catalog
+    description: STAC Catalog for examples in STAC Themes Extension building block.
+    providers:
+    - type: stac
+      name: Hateoas
+      data: /data/stac/ogc.contrib.stac.extensions.themes
+      file_types:
+      - catalog.json
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-stac/build/annotated/contrib/stac/extensions/themes/context.jsonld
+    bblocks_register: https://ogcincubator.github.io/bblocks-stac/build/register.json
+  ogc.contrib.stac.extensions.themes-jq:
+    type: stac-collection
+    title: STAC Themes Extension with JQ pre-uplift step catalog
+    description: STAC Catalog for examples in STAC Themes Extension with JQ pre-uplift
+      step building block.
+    providers:
+    - type: stac
+      name: Hateoas
+      data: /data/stac/ogc.contrib.stac.extensions.themes-jq
+      file_types:
+      - catalog.json
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-stac/build/annotated/contrib/stac/extensions/themes-jq/context.jsonld
+    bblocks_register: https://ogcincubator.github.io/bblocks-stac/build/register.json
+  ogc.contrib.stac.extensions.themes-shacl:
+    type: stac-collection
+    title: STAC Themes Extension with SHACL semantic uplift step catalog
+    description: STAC Catalog for examples in STAC Themes Extension with SHACL semantic
+      uplift step building block.
+    providers:
+    - type: stac
+      name: Hateoas
+      data: /data/stac/ogc.contrib.stac.extensions.themes-shacl
+      file_types:
+      - catalog.json
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-stac/build/annotated/contrib/stac/extensions/themes-shacl/context.jsonld
+    bblocks_register: https://ogcincubator.github.io/bblocks-stac/build/register.json
+  ogc.contrib.stac.item-prov:
+    type: stac-collection
+    title: STAC Item with Provenance catalog
+    description: STAC Catalog for examples in STAC Item with Provenance building block.
+    providers:
+    - type: stac
+      name: Hateoas
+      data: /data/stac/ogc.contrib.stac.item-prov
+      file_types:
+      - catalog.json
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-stac/build/annotated/contrib/stac/item-prov/context.jsonld
+    bblocks_register: https://ogcincubator.github.io/bblocks-stac/build/register.json
+  ogc.contrib.stac.extensions.mlm:
+    type: stac-collection
+    title: STAC Machine Learning Model catalog
+    description: STAC Catalog for examples in STAC Machine Learning Model building
+      block.
+    providers:
+    - type: stac
+      name: Hateoas
+      data: /data/stac/ogc.contrib.stac.extensions.mlm
+      file_types:
+      - catalog.json
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-stac/build/annotated/contrib/stac/extensions/mlm/context.jsonld
+    bblocks_register: https://ogcincubator.github.io/bblocks-stac/build/register.json
+  ogc.osc.geodcat-stac-earthcode.workflows:
+    type: collection
+    visibility: default
+    title: EarthCODE Workflow
+    description: EarthCODE metadata profile linked to semantic models
+    keywords:
+    - DCAT
+    - profile
+    - Records
+    - STAC
+    - EarthCODE
+    extents:
+      spatial:
+        bbox: &id001
+        - null
+        - null
+        - null
+        - null
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-openscience/build/annotated/osc/geodcat-stac-earthcode/workflows/context.jsonld
+    providers:
+    - type: feature
+      name: GeoJSON
+      data: /data/bblocks/ogc.osc.geodcat-stac-earthcode.geojson
+    bblocks_register: https://ogcincubator.github.io/bblocks-openscience/build/register.json
+  ogc.osc.geodcat-stac-earthcode.experiments:
+    type: collection
+    visibility: default
+    title: EarthCODE Experiment
+    description: EarthCODE metadata profile linked to semantic models
+    keywords:
+    - DCAT
+    - profile
+    - Records
+    - STAC
+    - EarthCODE
+    extents:
+      spatial:
+        bbox: *id001
+    linked-data:
+      inject_verbatim_context: true
+      replace_id_field: id
+      context:
+      - https://ogcincubator.github.io/bblocks-openscience/build/annotated/osc/geodcat-stac-earthcode/experiments/context.jsonld
+    providers:
+    - type: feature
+      name: GeoJSON
+      data: /data/bblocks/ogc.osc.geodcat-stac-earthcode.geojson
+    bblocks_register: https://ogcincubator.github.io/bblocks-openscience/build/register.json
