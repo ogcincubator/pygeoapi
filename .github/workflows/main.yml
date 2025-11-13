@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - master
+      - ogc
     paths-ignore:
       - '!**.md'
       - 'docs/**'
