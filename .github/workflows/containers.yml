@@ -9,7 +9,7 @@ on:
   workflow_run:
     workflows: ["Build"]
     types: [completed]
-    branches: [master]
+    branches: [master, ogc]
     
 env:
   DOCKER_REPOSITORY: ${{ secrets.DOCKER_REPOSITORY || 'geopython/pygeoapi' }}
