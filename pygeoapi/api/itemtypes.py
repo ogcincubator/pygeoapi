@@ -956,6 +956,9 @@ def get_collection_item(api: API, request: APIRequest,
     # locale (or fallback default locale)
     l10n.set_response_language(headers, prv_locale, request.locale)
 
+    config_dataset = api.config['resources'][dataset]
+    linked_data = config_dataset.get('linked-data')
+
     if request.format == F_HTML:  # render
         tpl_config = api.get_dataset_templates(dataset)
         content['title'] = l10n.translate(collections[dataset]['title'],
@@ -975,8 +978,9 @@ def get_collection_item(api: API, request: APIRequest,
 
     elif request.format == F_JSONLD or (
             request.format == F_JSON
-            and (linked_data := api.config['resources'][dataset].get('linked-data'))
-            and all(linked_data.get(k) for k in ('context', 'inject_verbatim_context'))
+            and linked_data
+            and all(linked_data.get(k)
+                    for k in ('context', 'inject_verbatim_context'))
       ):
         content = geojson2jsonld(
             api, content, dataset, uri, (p.uri_field or 'id')

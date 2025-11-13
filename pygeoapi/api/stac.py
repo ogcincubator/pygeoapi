@@ -48,7 +48,7 @@ from shapely import from_geojson
 
 from pygeoapi import l10n
 from pygeoapi import api as ogc_api
-from pygeoapi.api import itemtypes as itemtypes_api, F_JSONLD
+from pygeoapi.api import itemtypes as itemtypes_api
 from pygeoapi.plugin import load_plugin
 
 from pygeoapi.provider.base import (
@@ -200,6 +200,8 @@ def get_stac_path(api: API, request: APIRequest,
         content['links'].extend(
             stac_collections[dataset].get('links', []))
 
+        linked_data = api.config['resources'][dataset].get('linked-data')
+
         if request.format == F_HTML:  # render
             content['path'] = path
             if 'assets' in content:  # item view
@@ -227,14 +229,16 @@ def get_stac_path(api: API, request: APIRequest,
 
             return headers, HTTPStatus.OK, content
 
-        elif ((linked_data := api.config['resources'][dataset].get('linked-data'))
-                and all(linked_data.get(k) for k in ('context', 'inject_verbatim_context'))):
+        elif (linked_data
+                and all(linked_data.get(k)
+                        for k in ('context', 'inject_verbatim_context'))):
             content = {
                 '@context': linked_data['context'],
                 **content
             }
             if replace_id_field := linked_data.get('replace_id_field'):
-                content[replace_id_field] = f"{get_base_url(api.config)}/stac/{path}"
+                content[replace_id_field] = (f"{get_base_url(api.config)}"
+                                             f"/stac/{path}")
                 pass
 
         return headers, HTTPStatus.OK, to_json(content, api.pretty_print)

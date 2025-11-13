@@ -814,6 +814,7 @@ def conformance(api: API, request: APIRequest) -> Tuple[dict, int, str]:
                 if provider['type'] == 'record':
                     conformance_list.extend(
                         apis_dict['itemtypes'].CONFORMANCE_CLASSES_RECORDS)
+        conformance_list.extend(value.get('conformance-classes', []))
 
     conformance = {
         'conformsTo': sorted(list(set(conformance_list)))

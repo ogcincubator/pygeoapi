@@ -11,9 +11,12 @@ import yaml
 import sys
 
 REGISTERS = {
-    'examples': 'https://ogcincubator.github.io/bblocks-examples/build/register.json',
-    'stac': 'https://ogcincubator.github.io/bblocks-stac/build/register.json',
-    'openscience': 'https://ogcincubator.github.io/bblocks-openscience/build/register.json',
+    'examples': 'https://ogcincubator.github.io/'
+                'bblocks-examples/build/register.json',
+    'stac': 'https://ogcincubator.github.io/'
+            'bblocks-stac/build/register.json',
+    'openscience': 'https://ogcincubator.github.io/'
+                   'bblocks-openscience/build/register.json',
 }
 DATA_DIR = Path('data')
 STAC_DIR = DATA_DIR / 'stac'
@@ -32,16 +35,21 @@ def fetch_json(url):
     return r.json()
 
 
-def get_envelop_bbox(collections: Sequence[dict]) -> tuple[float, float, float, float]:
+def get_envelop_bbox(collections: Sequence[dict]) \
+        -> tuple[float, float, float, float]:
     envelope_bbox = None, None, None, None
 
     def get_updated_bbox(geom):
         bbox = shapely_shape(geom).bounds
         return (
-            bbox[0] if envelope_bbox[0] is None else min(envelope_bbox[0], bbox[0]),
-            bbox[1] if envelope_bbox[1] is None else min(envelope_bbox[1], bbox[1]),
-            bbox[2] if envelope_bbox[2] is None else max(envelope_bbox[2], bbox[2]),
-            bbox[3] if envelope_bbox[3] is None else max(envelope_bbox[3], bbox[3]),
+            bbox[0] if envelope_bbox[0] is None
+            else min(envelope_bbox[0], bbox[0]),
+            bbox[1] if envelope_bbox[1] is None
+            else min(envelope_bbox[1], bbox[1]),
+            bbox[2] if envelope_bbox[2] is None
+            else max(envelope_bbox[2], bbox[2]),
+            bbox[3] if envelope_bbox[3] is None
+            else max(envelope_bbox[3], bbox[3]),
         )
 
     for entry in collections:
@@ -70,8 +78,6 @@ def process_register(register_name: str, register_url: str, register_fn: Path,
 
     output_resources = {}
 
-    base_url = new_register.get('baseURL')
-
     for bblock_entry in new_register['bblocks']:
         bblock = fetch_json(bblock_entry['documentation']['json-full']['url'])
         bblock_feature_collections = {}
@@ -94,7 +100,10 @@ def process_register(register_name: str, register_url: str, register_fn: Path,
                         else:
                             fc = bblock_feature_collections.setdefault('', {})
                             if not fc:
-                                fc.update({'type': 'FeatureCollection', 'features': []})
+                                fc.update({
+                                    'type': 'FeatureCollection',
+                                    'features': []
+                                })
                             fc['features'].append(snippet_code)
                     elif snippet_code == 'FeatureCollection':
                         bblock_feature_collections[str(i)] = snippet_code
@@ -127,9 +136,12 @@ def process_register(register_name: str, register_url: str, register_fn: Path,
 
             providers = []
             for key, fc in bblock_feature_collections.items():
-                collection_fn = OUTPUT_DIR.joinpath(bblock['itemIdentifier']).with_suffix('.geojson')
+                collection_fn = (OUTPUT_DIR.joinpath(bblock['itemIdentifier'])
+                                 .with_suffix('.geojson'))
                 if key:
-                    collection_fn = collection_fn.with_stem(collection_fn.stem + '_' + key)
+                    collection_fn = collection_fn.with_stem(
+                        collection_fn.stem + '_' + key
+                    )
                 collection_fn.parent.mkdir(parents=True, exist_ok=True)
                 with open(collection_fn, 'w') as f:
                     json.dump(fc, f, indent=2)
@@ -152,7 +164,8 @@ def process_register(register_name: str, register_url: str, register_fn: Path,
             catalog = {
                 'id': bblock['itemIdentifier'],
                 'title': f"{bblock['name']} catalog",
-                'description': f"STAC Catalog for examples in {bblock['name']} building block.",
+                'description': f"STAC Catalog for examples in "
+                               f"{bblock['name']} building block.",
                 'type': 'Catalog',
                 'stac_version': '1.0.0',
                 'stac_extensions': None,
@@ -228,7 +241,10 @@ def _main():
     new_registers = {}
     for register_name, register_url in REGISTERS.items():
         register_fn = DATA_DIR / f'register-{register_name}.json'
-        if (process_result := process_register(register_name, register_url, register_fn, force)) is not False:
+        if (process_result := process_register(register_name,
+                                               register_url,
+                                               register_fn,
+                                               force)) is not False:
             new_resources_register, new_register = process_result
             new_resources[register_url] = new_resources_register
             new_registers[register_fn] = new_register
@@ -241,13 +257,17 @@ def _main():
     with open(PYGEOAPI_CONFIG_FN) as f:
         existing_config = yaml.safe_load(f)
 
-    all_resources = {k: v for k, v in existing_config.setdefault('resources', {}).items()
+    all_resources = {k: v
+                     for k, v in existing_config.get('resources', {}).items()
                      if v.get('bblocks_register') not in new_resources}
-    all_resources.update({k: v for r in new_resources.values() for k, v in r.items()})
+    all_resources.update({k: v
+                          for r in new_resources.values()
+                          for k, v in r.items()})
     existing_config['resources'] = all_resources
 
     with open(PYGEOAPI_CONFIG_FN, 'w') as f:
-        yaml.safe_dump(existing_config, f, default_flow_style=False, sort_keys=False)
+        yaml.safe_dump(existing_config, f,
+                       default_flow_style=False, sort_keys=False)
 
     for reg_path, reg_contents in new_registers.items():
         with open(reg_path, 'w') as f:

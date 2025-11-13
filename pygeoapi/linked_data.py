@@ -195,7 +195,8 @@ def geojson2jsonld(cls, data: dict, dataset: str,
     context = linked_data.get('context', []).copy()
     templates = cls.get_dataset_templates(dataset)
 
-    if identifier and context and linked_data.get('inject_verbatim_context', False):
+    if (identifier and context
+            and linked_data.get('inject_verbatim_context', False)):
         ldjsonData = {
             '@context': context,
             **data
@@ -232,8 +233,10 @@ def geojson2jsonld(cls, data: dict, dataset: str,
 
             for i, feature in enumerate(data['features']):
                 # Get URI for each feature
-                identifier_ = feature.get(id_field,
-                                          feature['properties'].get(id_field, ''))
+                identifier_ = feature.get(
+                    id_field,
+                    feature['properties'].get(id_field, '')
+                )
                 if not is_url(str(identifier_)):
                     identifier_ = f"{ds_url}/items/{feature['id']}"  # noqa
 
