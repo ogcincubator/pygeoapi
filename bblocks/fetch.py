@@ -88,6 +88,7 @@ def process_register(register_url: str, register_fn: Path,
 
     for bblock_entry in new_register['bblocks']:
         bblock = fetch_json(bblock_entry['documentation']['json-full']['url'])
+        bblock_id = bblock['itemIdentifier']
         bblock_feature_collections = {}
         bblock_stac_items = []
         for i, example in enumerate(bblock.get('examples', [])):
@@ -98,6 +99,13 @@ def process_register(register_url: str, register_fn: Path,
                         continue
                     if not (snippet_type := snippet_code.get('type')):
                         continue
+                    if viewer_url := new_register.get('viewerURL'):
+                        snippet_code.setdefault('links', []).append({
+                            'type': 'text/html',
+                            'rel': '',
+                            'title': 'Source Building Block',
+                            'href': urljoin(viewer_url, f'bblock/{bblock_id}'),
+                        })
                     if snippet_type == 'Feature':
                         if snippet_code.get('stac_version'):
                             # STAC item
