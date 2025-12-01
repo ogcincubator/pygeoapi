@@ -152,8 +152,8 @@
         if (rootElem) {
           const linkedDataConfig = {{ linked_data | tojson }}
           const options = {};
-          if (linkedDataConfig.fallback_rainbow_instance) {
-            options.fallbackRainbowInstance = linkedDataConfig.fallback_rainbow_instance;
+          if (linkedDataConfig.fallback_sparql_endpoint) {
+            options.fallbackSparqlEndpoint = linkedDataConfig.fallback_sparql_endpoint;
           }
           const context = { '@context': linkedDataConfig['context'] };
           jsonldUIUtils.loadContext(context)
