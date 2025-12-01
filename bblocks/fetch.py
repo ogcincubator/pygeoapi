@@ -1,8 +1,9 @@
+import argparse
 import json
 import re
 from pathlib import Path
-from typing import Sequence
-from urllib.parse import urljoin
+from typing import Iterable
+from urllib.parse import urljoin, urlparse
 
 import requests
 from shapely.geometry import shape as shapely_shape
@@ -10,23 +11,24 @@ import yaml
 
 import sys
 
-REGISTERS = {
-    'examples': 'https://ogcincubator.github.io/'
-                'bblocks-examples/build/register.json',
-    'stac': 'https://ogcincubator.github.io/'
-            'bblocks-stac/build/register.json',
-    'openscience': 'https://ogcincubator.github.io/'
-                   'bblocks-openscience/build/register.json',
-}
-DATA_DIR = Path('data')
-STAC_DIR = DATA_DIR / 'stac'
+DEFAULT_DATA_DIR = Path('data')
+STAC_SUBDIR = 'stac'
 
-PYGEOAPI_CONFIG_FN = Path('pygeoapi.config.yml')
-OUTPUT_DIR = DATA_DIR / 'bblocks'
+DEFAULT_PYGEOAPI_CONFIG_FN = 'pygeoapi.config.yml'
+OUTPUT_SUBDIR = 'bblocks'
 
 
 def safe_filename(s: str):
     return re.sub(r'[^a-zA-Z0-9._-]+', '_', s)
+
+
+def get_register_name(url: str):
+    parsed = urlparse(url)
+
+    def clean(s: str):
+        return re.sub(r'[^a-zA-Z0-9._-]+', '_', s)
+
+    return f"{clean(parsed.hostname)}_{clean(parsed.path)}"
 
 
 def fetch_json(url):
@@ -35,12 +37,12 @@ def fetch_json(url):
     return r.json()
 
 
-def get_envelop_bbox(collections: Sequence[dict]) \
+def get_envelop_bbox(collections: Iterable[dict]) \
         -> tuple[float, float, float, float]:
     envelope_bbox = None, None, None, None
 
-    def get_updated_bbox(geom):
-        bbox = shapely_shape(geom).bounds
+    def get_updated_bbox(g):
+        bbox = shapely_shape(g).bounds
         return (
             bbox[0] if envelope_bbox[0] is None
             else min(envelope_bbox[0], bbox[0]),
@@ -62,9 +64,13 @@ def get_envelop_bbox(collections: Sequence[dict]) \
     return envelope_bbox
 
 
-def process_register(register_name: str, register_url: str, register_fn: Path,
+def process_register(register_url: str, register_fn: Path,
+                     data_dir: Path, fallback_sparql: str | None = None,
                      force=False):
     new_register = fetch_json(register_url)
+
+    output_dir = data_dir / OUTPUT_SUBDIR
+    stac_dir = data_dir / STAC_SUBDIR
 
     needs_update = not register_fn.is_file() or force
 
@@ -75,6 +81,8 @@ def process_register(register_name: str, register_url: str, register_fn: Path,
 
     if not needs_update:
         return False
+
+    fallback_sparql = new_register.get('sparqlEndpoint', fallback_sparql)
 
     output_resources = {}
 
@@ -126,17 +134,20 @@ def process_register(register_name: str, register_url: str, register_fn: Path,
             }
 
             if ld_context := bblock.get('ldContext'):
-                output_resource['linked-data'] = {
+                ld_config = {
                     'inject_verbatim_context': True,
                     'replace_id_field': 'id',
                     'context': [
                         ld_context
                     ]
                 }
+                if fallback_sparql:
+                    ld_config['fallback_sparql_endpoint'] = fallback_sparql
+                output_resource['linked-data'] = ld_config
 
             providers = []
             for key, fc in bblock_feature_collections.items():
-                collection_fn = (OUTPUT_DIR.joinpath(bblock['itemIdentifier'])
+                collection_fn = (output_dir.joinpath(bblock['itemIdentifier'])
                                  .with_suffix('.geojson'))
                 if key:
                     collection_fn = collection_fn.with_stem(
@@ -155,7 +166,7 @@ def process_register(register_name: str, register_url: str, register_fn: Path,
             output_resources[bblock['itemIdentifier']] = output_resource
 
         if bblock_stac_items:
-            stac_dir = STAC_DIR / bblock['itemIdentifier']
+            stac_dir = stac_dir / bblock['itemIdentifier']
             stac_dir.mkdir(parents=True, exist_ok=True)
 
             added_items = set()
@@ -219,32 +230,71 @@ def process_register(register_name: str, register_url: str, register_fn: Path,
                 ]
             }
             if ld_context := bblock.get('ldContext'):
-                output_resource['linked-data'] = {
+                ld_config = {
                     'inject_verbatim_context': True,
                     'replace_id_field': 'id',
                     'context': [
                         ld_context
                     ]
                 }
+                if fallback_sparql:
+                    ld_config['fallback_sparql_endpoint'] = fallback_sparql
+                output_resource['linked-data'] = ld_config
             output_resources[bblock['itemIdentifier']] = output_resource
 
     return output_resources, new_register
 
 
 def _main():
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    STAC_DIR.mkdir(parents=True, exist_ok=True)
+    parser = argparse.ArgumentParser(
+        prog='bblocks-pygeoapi-fetch',
+        description='Fetches OGC Building Blocks '
+                    'examples as pygeoapi resources',
+    )
+    parser.add_argument(
+        'register',
+        help='Register URL (register.json) to fetch',
+        nargs='+',
+    )
+    parser.add_argument(
+        '-c', '--config-file',
+        help=f'pygeoapi config file ("{DEFAULT_PYGEOAPI_CONFIG_FN}" '
+             f'by default)',
+        default=DEFAULT_PYGEOAPI_CONFIG_FN,
+    )
+    parser.add_argument(
+        '-s', '--fallback-sparql',
+        help='Fallback SPARQL endpoint to retrieve definitions '
+             '(when direct resolution fails and the register '
+             'does not specify one)',
+    )
+    parser.add_argument(
+        '-d', '--data-dir',
+        help=f'Directory to write data to ("{DEFAULT_DATA_DIR}" by default)',
+        default=str(DEFAULT_DATA_DIR),
+    )
+    parser.add_argument(
+        '-f', '--force',
+        action='store_true',
+        help='Force fetch registers even if no changes are detected',
+    )
+    args = parser.parse_args()
 
-    force = len(sys.argv) > 1 and sys.argv[1] == '-f'
+    data_dir = Path(args.data_dir)
+    data_dir.mkdir(parents=True, exist_ok=True)
+    data_dir.joinpath(STAC_SUBDIR).mkdir(parents=True, exist_ok=True)
 
     new_resources = {}
     new_registers = {}
-    for register_name, register_url in REGISTERS.items():
-        register_fn = DATA_DIR / f'register-{register_name}.json'
-        if (process_result := process_register(register_name,
-                                               register_url,
-                                               register_fn,
-                                               force)) is not False:
+    for register_url in args.register:
+        register_name = get_register_name(register_url)
+        register_fn = data_dir / f'register-{register_name}'
+        if (process_result := process_register(
+                register_url=register_url,
+                register_fn=register_fn,
+                data_dir=data_dir,
+                fallback_sparql=args.fallback_sparql,
+                force=args.force)) is not False:
             new_resources_register, new_register = process_result
             new_resources[register_url] = new_resources_register
             new_registers[register_fn] = new_register
@@ -254,18 +304,20 @@ def _main():
     if not new_resources:
         sys.exit(1)
 
-    with open(PYGEOAPI_CONFIG_FN) as f:
+    with open(args.config_file) as f:
         existing_config = yaml.safe_load(f)
 
-    all_resources = {k: v
-                     for k, v in existing_config.get('resources', {}).items()
-                     if v.get('bblocks_register') not in new_resources}
+    all_resources = {
+        k: v
+        for k, v in existing_config.setdefault('resources', {}).items()
+        if v.get('bblocks_register') not in new_resources
+    }
     all_resources.update({k: v
                           for r in new_resources.values()
                           for k, v in r.items()})
     existing_config['resources'] = all_resources
 
-    with open(PYGEOAPI_CONFIG_FN, 'w') as f:
+    with open(args.config_file, 'w') as f:
         yaml.safe_dump(existing_config, f,
                        default_flow_style=False, sort_keys=False)
 
